@@ -5,7 +5,7 @@
 * Create an external table using the Green Taxi Trip Records Data for 2022.
 * Create a table in BigQuery using the Green Taxi Trip Records for 2022 (do not partition or cluster this table).
 
-```
+```sql
 -- CREATE AN EXTERNAL TABLE REFERRING TO GREEN TAXI FILES IN GOOGLE CLOUD STORAGE 
 
 CREATE OR REPLACE EXTERNAL TABLE `ny-taxi-rides-data.ny_taxi.external_green_taxi_2022`
@@ -31,7 +31,7 @@ Question 1: What is count of records for the 2022 Green Taxi Data??
 
 **ANSWER: 840,402**
 
-```
+```sql
 SELECT COUNT(*) AS record_count
 FROM `ny-taxi-rides-data.ny_taxi.green_taxi_2022`;
 ```
@@ -49,7 +49,7 @@ What is the estimated amount of data that will be read when this query is execut
 
 **ANSWER: 0 MB for the External Table and 0MB for the Materialized Table**
 
-```
+```sql
 -- External Table
 
 SELECT COUNT(DISTINCT PULocationID) AS distinct_PULocationIDs
@@ -73,7 +73,7 @@ How many records have a fare_amount of 0?
 
 **ANSWER: 1,622**
 
-```
+```sql
 SELECT COUNT(*) AS zero_fare_amount_records
 FROM `ny-taxi-rides-data.ny_taxi.green_taxi_2022`
 WHERE fare_amount = 0;
@@ -90,7 +90,7 @@ What is the best strategy to make an optimized table in Big Query if your query 
 
 **ANSWER: Partition by lpep_pickup_datetime  Cluster on PUlocationID**
 
-```
+```sql
 CREATE TABLE `ny-taxi-rides-data.ny_taxi.green_taxi_2022_partition_lpep_cluster_pulocationid`
 PARTITION BY DATE(lpep_pickup_datetime)
 CLUSTER BY PULocationID
@@ -114,7 +114,7 @@ Choose the answer which most closely matches.
 
 **ANSWER: 12.82 MB for non-partitioned table and 1.12 MB for the partitioned table**
 
-```
+```sql
 -- Materialised Non-partitioned & Non-clustered table - 12.82 MB
 
 SELECT COUNT(DISTINCT PULocationID) AS distinct_PULocationIDs

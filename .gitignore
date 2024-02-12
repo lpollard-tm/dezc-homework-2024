@@ -9,7 +9,7 @@ module-1-homework/terraform-files/terraform_with_variables/variables.tf
 # ignore json files as keys are stored here 
 *.json
 
-# TERRAFORM GITIGNORE TEMPLATE 
+# TERRAFORM
 
 module-1-homework/terraform-files/terraform_with_variables/terraform.tfstate.backup
 
@@ -47,3 +47,17 @@ override.tf.json
 # Ignore CLI configuration files
 .terraformrc
 terraform.rc
+
+# dlt 
+
+# ignore secrets, virtual environments and typical python compilation artifacts
+secrets.toml
+# ignore basic python artifacts
+.env
+**/__pycache__/
+**/*.py[cod]
+**/*$py.class
+# ignore duckdb
+*.duckdb
+*.wal
+dlt-workshop-homework/env
