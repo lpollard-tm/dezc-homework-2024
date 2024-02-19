@@ -1,0 +1,10 @@
+version: 2
+
+sources:
+  - name: staging
+    database: dbt-module-4-28646 #project
+    schema: trips_data_all #dataset
+
+    tables:
+      - name: yellow_tripdata
+      - name: green_tripdata
