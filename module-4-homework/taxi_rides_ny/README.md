@@ -1,12 +1,14 @@
-#Welcome to my dbt project! 
+# Welcome to my dbt project! 
 
-##As part of Data Engineering Zoom Camp 2024 I created this dbt project 
+----------------------------------------------------------------
 
-##Inside you will find the project files & my homework submission 
+As part of Data Engineering Zoom Camp 2024 I created this dbt project 
 
-##Thanks! 
+Inside you will find the project files & my homework submission for Module 4
 
-##Lottie Jane Pollard 
+Thanks! 
+
+Lottie Jane Pollard
 
 ----------------------------------------------------------------------
 
