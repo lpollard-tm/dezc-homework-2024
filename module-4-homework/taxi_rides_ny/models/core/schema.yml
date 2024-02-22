@@ -26,7 +26,7 @@ models:
     columns:
       - name: tripid
         data_type: string
-        description: "unique identifier conformed by the combination of vendorid and pickyp time"
+        description: "unique identifier conformed by the combination of vendorid and pickup time"
 
       - name: vendorid
         data_type: int64
@@ -125,5 +125,65 @@ models:
         description: ""
 
       - name: payment_type_description
+        data_type: string
+        description: ""
+
+ 
+
+  - name: fact_fhv_trips
+    description: >
+     The fact_fhv_trips table serves as a fundamental component in analysing the operational aspects of FHV (For Hire Vehicle) services. While containing a limited set of columns, 
+     it provides crucial data points for understanding trip duration, pickup and dropoff locations, and dispatching base allocations. Analysts and stakeholders can leverage 
+     this table to conduct performance assessments, identify service coverage areas, and optimize resource allocation within FHV operations.
+    columns:
+      - name: tripid
+        data_type: string
+        description: "unique identifier conformed by the combination of dispatching_base_num & pickup_datetime"
+
+      - name: service_type
+        data_type: string
+        description: ""
+
+      - name: dispatching_base_num
+        data_type: string
+        description: ""
+
+      - name: affiliated_base_number
+        data_type: string
+        description: ""
+
+      - name: pickup_locationid
+        data_type: int64
+        description: ""
+
+      - name: pickup_borough
+        data_type: string
+        description: ""
+
+      - name: pickup_zone
+        data_type: string
+        description: ""
+
+      - name: dropoff_locationid
+        data_type: int64
+        description: ""
+
+      - name: dropoff_borough
+        data_type: string
+        description: ""
+
+      - name: dropoff_zone
+        data_type: string
+        description: ""
+
+      - name: pickup_datetime
+        data_type: timestamp
+        description: ""
+
+      - name: dropoff_datetime
+        data_type: timestamp
+        description: ""
+
+      - name: store_and_fwd_flag
         data_type: string
         description: ""
