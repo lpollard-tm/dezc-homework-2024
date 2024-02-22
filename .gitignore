@@ -1,10 +1,13 @@
 # Other files to ignore
 
+fhv_2019/
+
 module-1-homework/ingest-green-taxi-data/docker_command_prompt.txt
 module-1-homework/ingest-green-taxi-data/docker-compose.yaml
 module-1-homework/ingest-green-taxi-data/green_tripdata_2019-09.csv
 module-1-homework/ingest-green-taxi-data/taxi+_zone_lookup.csv
 module-1-homework/terraform-files/terraform_with_variables/variables.tf
+
 
 # ignore json files as keys are stored here 
 *.json
