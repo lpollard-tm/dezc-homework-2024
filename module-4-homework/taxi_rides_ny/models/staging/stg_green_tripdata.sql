@@ -3,7 +3,7 @@
 with
     tripdata as (
         select *, row_number() over (partition by vendorid, lpep_pickup_datetime) as rn  {# rn = rownumber #}
-        from {{ source("staging", "green_tripdata") }}
+        from {{ source("staging", "") }}
         where vendorid is not null
     )
 select
