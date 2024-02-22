@@ -7,7 +7,7 @@ with
     dim_zones as (select * from {{ ref("dim_zones") }} where borough != 'Unknown')
 select
     tripid,
-    service_type,
+
     dispatching_base_num,
     affiliated_base_number,
     pickup_locationid,
