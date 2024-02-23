@@ -33,4 +33,8 @@ select
 
 from tripdata
 
-{% if var("is_test_run", default=true) %} limit 100 {% endif %}
+{% if var('is_test_run', default=true) %}
+
+    limit 100
+
+{% endif %}
