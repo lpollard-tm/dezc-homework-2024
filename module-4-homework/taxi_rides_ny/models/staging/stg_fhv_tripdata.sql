@@ -15,8 +15,17 @@ with
 select
 
     -- identifiers
-    {{ dbt_utils.generate_surrogate_key(["dispatching_base_num", "affiliated_base_number", "pickup_locationid", "dropoff_locationid"]) }}
-    as tripid,
+    -- not implemented this new surrogate key yet 19:39 23/02/24
+    {{
+        dbt_utils.generate_surrogate_key(
+            [
+                "dispatching_base_num",
+                "affiliated_base_number",
+                "pickup_locationid",
+                "dropoff_locationid",
+            ]   
+        ) 
+    }} as tripid,
     dispatching_base_num,
     affiliated_base_number,
     {{ dbt.safe_cast("pulocationid", api.Column.translate_type("integer")) }}
@@ -33,8 +42,4 @@ select
 
 from tripdata
 
-{% if var('is_test_run', default=true) %}
-
-    limit 100
-
-{% endif %}
+{% if var("is_test_run", default=true) %} limit 100 {% endif %}
