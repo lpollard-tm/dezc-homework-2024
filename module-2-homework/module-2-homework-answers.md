@@ -1,4 +1,4 @@
-## Week 2 Homework
+## Module 2 Homework
 
 > In case you don't get one option exactly, select the closest one 
 
