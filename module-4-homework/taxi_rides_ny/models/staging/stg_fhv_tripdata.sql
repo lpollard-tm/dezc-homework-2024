@@ -21,8 +21,8 @@ select
             [
                 "dispatching_base_num",
                 "affiliated_base_number",
-                "pickup_locationid",
-                "dropoff_locationid",
+                "pulocationid",
+                "dolocationid",
             ]   
         ) 
     }} as tripid,
