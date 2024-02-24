@@ -10,7 +10,7 @@ We will use the data loaded for:
 
 See folder `taxi_rides_ny` for DBT files
 
-Dashboard URL: `https://lookerstudio.google.com/reporting/44bd8ff2-cbd7-478e-96a2-ce46222a2684`
+Dashboard URL: `https://lookerstudio.google.com/s/vRlKF0gcSpU`
 
 Dashboard PDF: See file `NY_Taxi_Data_2019_-_2020.pdf` 
 
@@ -18,14 +18,39 @@ Dashboard PDF: See file `NY_Taxi_Data_2019_-_2020.pdf`
 
 ### Question 1: 
 
-**What happens when we execute dbt build --vars '{'is_test_run': 'true'}'**
+**What happens when we execute dbt build --vars '{'is_test_run':'true'}'**
 
 - It's the same as running *dbt build*
-- It applies a _limit 100_ to all of our models
+- __*It applies a _limit 100_ to all of our models*__
 - It applies a _limit 100_ only to our staging models
 - Nothing
 
-**ANSWER: tbc**
+**ANSWER: Discrepancies in the question - I am going to assume that the intention is not to trick us and that you are simply making sure we know that we can use variables to limit the rows processed during development to save costs, so on that basis I am going to choose **'It applies a _limit 100_ to all of our models'**  and hope that I don't lose a point! - However, see below further views on the question...**
+
+
+It is the same as running dbt build because I have the following variable as a macro in my staging models:
+
+```
+{% if var('is_test_run', default=true) %}
+
+    limit 100
+
+{% endif %}
+```
+
+"Build - Build and test all selected resources (models, seeds, snapshots, tests)" https://docs.getdbt.com/reference/dbt-commands 
+
+`dbt build` will build my WHOLE project (staging & core models inc. tests, seeds etc) and will KEEP the default value of 'true'
+
+Therefore, running `dbt build --vars '{'is_test_run': 'true'}` is the same as running `dbt build`
+
+However, because of this environment variable within a macro the effect is ALSO **'It applies a _limit 100_ to all of our models'** 
+
+Also, although the variable is only **DECLARED** in our staging models, it is still parsed into the core models at build, so you could also say that it limits only the staging models IF you were to only build a staging model, for example `dbt build --select stg_green_tripdata --vars '{'is_test_run': 'true'}'`
+
+On top of that, the question is missing a SPACE between `: & '` before the true parameter (`dbt build --vars '{'is_test_run':'true'}'`) so in my case it did nothing different to the build, although it wouldn't have if it had a space as my default it `true` anyway. 
+
+The question also assumes that we have macro in our models, otherwise it would throw an error as the variable wouldn't exist. 
 
 -----------------------
 
@@ -109,5 +134,9 @@ Create a dashboard with some tiles that you find interesting to explore the data
 - FHV and Green
 
 **ANSWER: Yellow**
+
+Dashboard URL: `https://lookerstudio.google.com/s/vRlKF0gcSpU`
+
+Dashboard PDF: See file `NY_Taxi_Data_2019_-_2020.pdf` 
 
 ---------------------
