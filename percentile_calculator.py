@@ -8,6 +8,6 @@ def calculate_percentile(value, total):
     print(f"The value {value} is at the {percentile:.2f}% percentile relative to a total of {total}.")
     return percentile
 
-calculate_percentile(21, 1274)
+calculate_percentile(20, 1281)
 
-# The value 21 is at the 1.65% percentile relative to a total of 1274.
+# The value 20 is at the 1.56% percentile relative to a total of 1281.
