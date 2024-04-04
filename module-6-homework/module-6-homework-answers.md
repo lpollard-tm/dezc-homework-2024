@@ -1,75 +1,46 @@
-## Module 6 Homework 
-
-In this homework, we're going to extend Module 5 Homework and learn about streaming with PySpark.
-
-Instead of Kafka, we will use Red Panda, which is a drop-in
-replacement for Kafka. 
-
-Ensure you have the following set up (if you had done the previous homework and the module):
-
-- Docker (see [module 1](https://github.com/DataTalksClub/data-engineering-zoomcamp/tree/main/01-docker-terraform))
-- PySpark (see [module 5](https://github.com/DataTalksClub/data-engineering-zoomcamp/tree/main/05-batch/setup))
-
-For this homework we will be using the files from Module 5 homework:
-
-- Green 2019-10 data from [here](https://github.com/DataTalksClub/nyc-tlc-data/releases/download/green/green_tripdata_2019-10.csv.gz)
-
-
-
-## Start Red Panda
-
-Let's start redpanda in a docker container. 
-
-There's a `docker-compose.yml` file in the homework folder (taken from [here](https://github.com/redpanda-data-blog/2023-python-gsg/blob/main/docker-compose.yml))
-
-Copy this file to your homework directory and run
-
-```bash
-docker-compose up
-```
-
-(Add `-d` if you want to run in detached mode)
-
+## Module 6 Homework
 
 ## Question 1: Redpanda version
 
-Now let's find out the version of redpandas. 
+``` bash
+$ git clone https://github.com/redpanda-data-blog/2023-python-gsg.git
 
-For that, check the output of the command `rpk help` _inside the container_. The name of the container is `redpanda-1`.
+$ cd 2023-python-gsg/
 
-Find out what you need to execute based on the `help` output.
+$ docker-compose up -d
 
-What's the version, based on the output of the command you executed? (copy the entire version)
+$ docker exec -it redpanda-1 redpanda --version
+```
 
+``` bash
+# Output - v22.3.5 - 28b2443c33b0c2f8807bc5c460cc2478cfee1044-dirty
+```
 
 ## Question 2. Creating a topic
 
-Before we can send data to the redpanda server, we
-need to create a topic. We do it also with the `rpk`
-command we used previously for figuring out the version of 
-redpandas.
-
-Read the output of `help` and based on it, create a topic with name `test-topic` 
-
-What's the output of the command for creating a topic?
-
-
-## Question 3. Connecting to the Kafka server
-
-We need to make sure we can connect to the server, so
-later we can send some data to its topics
-
-First, let's install the kafka connector (up to you if you
-want to have a separate virtual environment for that)
-
 ```bash
-pip install kafka-python
+$ docker exec -it redpanda-1 rpk topic create test-topic
 ```
 
-You can start a jupyter notebook in your solution folder or
-create a script
+``` bash
+# output
 
-Let's try to connect to our server:
+TOPIC       STATUS
+test-topic  OK
+```
+
+``` bash
+$ docker exec -it redpanda-1 rpk topic list
+```
+
+```bash
+# output 
+
+NAME        PARTITIONS  REPLICAS
+test-topic  1           1
+```
+
+## Question 3. Connecting to the Kafka server
 
 ```python
 import json
@@ -90,15 +61,17 @@ producer = KafkaProducer(
 producer.bootstrap_connected()
 ```
 
-Provided that you can connect to the server, what's the output
-of the last command?
+```bash
+# output
 
+True
+```
 
 ## Question 4. Sending data to the stream
 
-Now we're ready to send some test data:
-
 ```python
+import time
+
 t0 = time.time()
 
 topic_name = 'test-topic'
@@ -109,95 +82,111 @@ for i in range(10):
     print(f"Sent: {message}")
     time.sleep(0.05)
 
+t_sent = time.time()
+print(f'Sending messages took {(t_sent - t0):.2f} seconds')
+
 producer.flush()
 
+t_flush = time.time()
+print(f'Flushing took {(t_flush - t_sent):.2f} seconds')
+
 t1 = time.time()
-print(f'took {(t1 - t0):.2f} seconds')
+print(f'Total time took {(t1 - t0):.2f} seconds')
 ```
-
-How much time did it take? Where did it spend most of the time?
-
-* Sending the messages
-* Flushing
-* Both took approximately the same amount of time
-
-(Don't remove `time.sleep` when answering this question)
-
-
-## Reading data with `rpk`
-
-You can see the messages that you send to the topic
-with `rpk`:
 
 ```bash
-rpk topic consume test-topic
+# output
+
+Sent: {'number': 0}
+Sent: {'number': 1}
+Sent: {'number': 2}
+Sent: {'number': 3}
+Sent: {'number': 4}
+Sent: {'number': 5}
+Sent: {'number': 6}
+Sent: {'number': 7}
+Sent: {'number': 8}
+Sent: {'number': 9}
+Sending messages took 0.53 seconds
+Flushing took 0.00 seconds
+Total time took 0.53 seconds
 ```
 
-Run the command above and send the messages one more time to 
-see them
-
-
-## Sending the taxi data
-
-Now let's send our actual data:
-
-* Read the green csv.gz file
-* We will only need these columns:
-  * `'lpep_pickup_datetime',`
-  * `'lpep_dropoff_datetime',`
-  * `'PULocationID',`
-  * `'DOLocationID',`
-  * `'passenger_count',`
-  * `'trip_distance',`
-  * `'tip_amount'`
-
-Iterate over the records in the dataframe
-
-```python
-for row in df_green.itertuples(index=False):
-    row_dict = {col: getattr(row, col) for col in row._fields}
-    print(row_dict)
-    break
-
-    # TODO implement sending the data here
-```
-
-Note: this way of iterating over the records is more efficient compared
-to `iterrows`
-
+**ANSWER: Sending the messages - 0.52 seconds**
 
 ## Question 5: Sending the Trip Data
 
-* Create a topic `green-trips` and send the data there
-* How much time in seconds did it take? (You can round it to a whole number)
-* Make sure you don't include sleeps in your code
+How much time in seconds did it take? (You can round it to a whole number)
 
+```bash
+$ docker exec -it redpanda-1 rpk topic create green-trips    
+```
 
-## Creating the PySpark consumer
+```bash
+#output 
 
-Now let's read the data with PySpark. 
+TOPIC       STATUS
+green-trips OK
+```
 
-Spark needs a library (jar) to be able to connect to Kafka, 
-so we need to tell PySpark that it needs to use it:
+```python
+import pandas as pd
+import time
+import json
+from kafka import KafkaProducer
+
+file_path = 'green_tripdata_2019-10.csv.gz'
+
+df = pd.read_csv(file_path)
+
+df_green = df[['lpep_pickup_datetime',
+               'lpep_dropoff_datetime',
+               'PULocationID',
+               'DOLocationID',
+               'passenger_count',
+               'trip_distance',
+               'tip_amount']]
+
+producer = KafkaProducer(bootstrap_servers='localhost:9092')
+
+t0 = time.time()
+topic_name = 'green-trips'
+for row in df_green.itertuples(index=False):
+    row_dict = {col: getattr(row, col) for col in row._fields}
+    value_bytes = json.dumps(row_dict).encode('utf-8')
+    producer.send(topic_name, value=value_bytes)
+t1 = time.time()
+
+time_taken = round(t1 - t0)
+
+print(f'It took {time_taken} seconds to send the data')
+```
+
+```bash
+#output 
+
+It took 129 seconds to send the data
+```
+
+**ANSWER: 129 seconds to send the data**
+
+## Question 6. Parsing the data
 
 ```python
 import pyspark
 from pyspark.sql import SparkSession
+from pyspark.sql import functions as F
+from pyspark.sql.types import StructType, StringType, IntegerType, DoubleType
 
 pyspark_version = pyspark.__version__
 kafka_jar_package = f"org.apache.spark:spark-sql-kafka-0-10_2.12:{pyspark_version}"
-
 spark = SparkSession \
     .builder \
     .master("local[*]") \
     .appName("GreenTripsConsumer") \
     .config("spark.jars.packages", kafka_jar_package) \
     .getOrCreate()
-```
 
-Now we can connect to the stream:
-
-```python
 green_stream = spark \
     .readStream \
     .format("kafka") \
@@ -205,94 +194,109 @@ green_stream = spark \
     .option("subscribe", "green-trips") \
     .option("startingOffsets", "earliest") \
     .load()
+
+schema = StructType() \
+    .add("lpep_pickup_datetime", StringType()) \
+    .add("lpep_dropoff_datetime", StringType()) \
+    .add("PULocationID", IntegerType()) \
+    .add("DOLocationID", IntegerType()) \
+    .add("passenger_count", DoubleType()) \
+    .add("trip_distance", DoubleType()) \
+    .add("tip_amount", DoubleType())
+
+parsed_stream = green_stream \
+    .select(F.from_json(F.col("value").cast('STRING'), schema).alias("data")) \
+    .select("data.*")
+
+query = parsed_stream \
+    .writeStream \
+    .format("console") \
+    .start()
+
+query.awaitTermination()
 ```
 
-In order to test that we can consume from the stream, 
-let's see what will be the first record there. 
+How does the record look after parsing?
 
-In Spark streaming, the stream is represented as a sequence of 
-small batches, each batch being a small RDD (or a small dataframe).
+*Answer:*
 
-So we can execute a function over each mini-batch.
-Let's run `take(1)` there to see what do we have in the stream:
+```bash
+# output
 
-```python
-def peek(mini_batch, batch_id):
-    first_row = mini_batch.take(1)
-
-    if first_row:
-        print(first_row[0])
-
-query = green_stream.writeStream.foreachBatch(peek).start()
++--------------------+---------------------+------------+------------+---------------+-------------+----------+
+|lpep_pickup_datetime|lpep_dropoff_datetime|PULocationID|DOLocationID|passenger_count|trip_distance|tip_amount|
++--------------------+---------------------+------------+------------+---------------+-------------+----------+
+| 2019-10-01 00:26:02|  2019-10-01 00:39:58|         112|         196|              1|         5.88|       0.0|
+| 2019-10-01 00:18:11|  2019-10-01 00:22:38|          43|         263|              1|          0.8|       0.0|
+| 2019-10-01 00:09:31|  2019-10-01 00:24:47|         255|         228|              2|          7.5|       0.0|
+| 2019-10-01 00:37:40|  2019-10-01 00:41:49|         181|         181|              1|          0.9|       0.0|
+| 2019-10-01 00:08:13|  2019-10-01 00:17:56|          97|         188|              1|         2.52|      2.26|
+| 2019-10-01 00:35:01|  2019-10-01 00:43:40|          65|          49|              1|         1.47|      1.86|
+| 2019-10-01 00:28:09|  2019-10-01 00:30:49|           7|         179|              1|          0.6|       1.0|
+| 2019-10-01 00:28:26|  2019-10-01 00:32:01|          41|          74|              1|         0.56|       0.0|
+| 2019-10-01 00:14:01|  2019-10-01 00:26:16|         255|          49|              1|         2.42|       0.0|
+| 2019-10-01 00:03:03|  2019-10-01 00:17:13|         130|         131|              1|          3.4|      2.85|
+| 2019-10-01 00:07:10|  2019-10-01 00:23:38|          24|          74|              3|         3.18|       0.0|
+| 2019-10-01 00:25:48|  2019-10-01 00:49:52|         255|         188|              1|          4.7|       1.0|
+| 2019-10-01 00:03:12|  2019-10-01 00:14:43|         129|         160|              1|          3.1|       0.0|
+| 2019-10-01 00:44:56|  2019-10-01 00:51:06|          18|         169|              1|         1.19|      0.25|
+| 2019-10-01 00:55:14|  2019-10-01 01:00:49|         223|           7|              1|         1.09|      1.46|
+| 2019-10-01 00:06:06|  2019-10-01 00:11:05|          75|         262|              1|         1.24|      2.01|
+| 2019-10-01 00:00:19|  2019-10-01 00:14:32|          97|         228|              1|         3.03|      3.58|
+| 2019-10-01 00:09:31|  2019-10-01 00:20:41|          41|          74|              1|         2.03|      2.16|
+| 2019-10-01 00:30:36|  2019-10-01 00:34:30|          41|          42|              1|         0.73|      1.26|
+| 2019-10-01 00:58:32|  2019-10-01 01:05:08|          41|         116|              1|         1.48|       0.0|
++--------------------+---------------------+------------+------------+---------------+-------------+----------+
 ```
-
-You should see a record like this:
-
-```
-Row(key=None, value=bytearray(b'{"lpep_pickup_datetime": "2019-10-01 00:26:02", "lpep_dropoff_datetime": "2019-10-01 00:39:58", "PULocationID": 112, "DOLocationID": 196, "passenger_count": 1.0, "trip_distance": 5.88, "tip_amount": 0.0}'), topic='green-trips', partition=0, offset=0, timestamp=datetime.datetime(2024, 3, 12, 22, 42, 9, 411000), timestampType=0)
-```
-
-Now let's stop the query, so it doesn't keep consuming messages
-from the stream
-
-```python
-query.stop()
-```
-
-## Question 6. Parsing the data
-
-The data is JSON, but currently it's in binary format. We need
-to parse it and turn it into a streaming dataframe with proper
-columns
-
-Similarly to PySpark, we define the schema
-
-```python
-from pyspark.sql import types
-
-schema = types.StructType() \
-    .add("lpep_pickup_datetime", types.StringType()) \
-    .add("lpep_dropoff_datetime", types.StringType()) \
-    .add("PULocationID", types.IntegerType()) \
-    .add("DOLocationID", types.IntegerType()) \
-    .add("passenger_count", types.DoubleType()) \
-    .add("trip_distance", types.DoubleType()) \
-    .add("tip_amount", types.DoubleType())
-```
-
-And apply this schema:
-
-```python
-from pyspark.sql import functions as F
-
-green_stream = green_stream \
-  .select(F.from_json(F.col("value").cast('STRING'), schema).alias("data")) \
-  .select("data.*")
-```
-
-How does the record look after parsing? Copy the output 
-
 
 ### Question 7: Most popular destination
 
-Now let's finally do some streaming analytics. We will
-see what's the most popular destination currently 
-based on our stream of data (which ideally we should 
-have sent with delays like we did in workshop 2)
-
-
-This is how you can do it:
-
-* Add a column "timestamp" using the `current_timestamp` function
-* Group by:
-  * 5 minutes window based on the timestamp column (`F.window(col("timestamp"), "5 minutes")`)
-  * `"DOLocationID"`
-* Order by count
-
-You can print the output to the console using this 
-code
-
 ```python
+import pyspark
+from pyspark.sql import SparkSession
+from pyspark.sql import functions as F
+from pyspark.sql.types import StructType, StringType, IntegerType, DoubleType
+
+pyspark_version = pyspark.__version__
+kafka_jar_package = f"org.apache.spark:spark-sql-kafka-0-10_2.12:{pyspark_version}"
+spark = SparkSession \
+    .builder \
+    .master("local[*]") \
+    .appName("GreenTripsConsumer") \
+    .config("spark.jars.packages", kafka_jar_package) \
+    .getOrCreate()
+
+green_stream = spark \
+    .readStream \
+    .format("kafka") \
+    .option("kafka.bootstrap.servers", "localhost:9092") \
+    .option("subscribe", "green-trips") \
+    .option("startingOffsets", "earliest") \
+    .load()
+
+schema = StructType() \
+    .add("lpep_pickup_datetime", StringType()) \
+    .add("lpep_dropoff_datetime", StringType()) \
+    .add("PULocationID", IntegerType()) \
+    .add("DOLocationID", IntegerType()) \
+    .add("passenger_count", DoubleType()) \
+    .add("trip_distance", DoubleType()) \
+    .add("tip_amount", DoubleType())
+
+parsed_stream = green_stream \
+    .select(F.from_json(F.col("value").cast('STRING'), schema).alias("data")) \
+    .select("data.*") \
+
+parsed_stream_with_timestamp = parsed_stream.withColumn("timestamp", F.current_timestamp())
+
+popular_destinations = parsed_stream_with_timestamp \
+    .groupBy(
+        F.window(F.col("timestamp"), "5 minutes"),
+        F.col("DOLocationID")
+    ) \
+    .count() \
+    .orderBy("count", ascending=False)
+
 query = popular_destinations \
     .writeStream \
     .outputMode("complete") \
@@ -303,15 +307,36 @@ query = popular_destinations \
 query.awaitTermination()
 ```
 
-Write the most popular destanation. (You will need to re-send the data for this to work)
+**ANSWER: The most popular DOLocationId is 74**
 
+```bash
+# output
 
-## Submitting the solutions
-
-* Form for submitting: https://courses.datatalks.club/de-zoomcamp-2024/homework/hw6
-
-
-## Solution
-
-We will publish the solution here after deadline.
-
+-------------------------------------------
+Batch: 0
+-------------------------------------------
++------------------------------------------+------------+-----+
+|window                                    |DOLocationID|count|
++------------------------------------------+------------+-----+
+|{2024-04-04 14:27:00, 2024-04-04 14:32:00}|74          |17741|
+|{2024-04-04 14:27:00, 2024-04-04 14:32:00}|42          |15942|
+|{2024-04-04 14:27:00, 2024-04-04 14:32:00}|41          |14061|
+|{2024-04-04 14:27:00, 2024-04-04 14:32:00}|75          |12840|
+|{2024-04-04 14:27:00, 2024-04-04 14:32:00}|129         |11930|
+|{2024-04-04 14:27:00, 2024-04-04 14:32:00}|7           |11533|
+|{2024-04-04 14:27:00, 2024-04-04 14:32:00}|166         |10845|
+|{2024-04-04 14:27:00, 2024-04-04 14:32:00}|236         |7913 |
+|{2024-04-04 14:27:00, 2024-04-04 14:32:00}|223         |7542 |
+|{2024-04-04 14:27:00, 2024-04-04 14:32:00}|238         |7318 |
+|{2024-04-04 14:27:00, 2024-04-04 14:32:00}|82          |7292 |
+|{2024-04-04 14:27:00, 2024-04-04 14:32:00}|181         |7282 |
+|{2024-04-04 14:27:00, 2024-04-04 14:32:00}|95          |7244 |
+|{2024-04-04 14:27:00, 2024-04-04 14:32:00}|244         |6733 |
+|{2024-04-04 14:27:00, 2024-04-04 14:32:00}|61          |6606 |
+|{2024-04-04 14:27:00, 2024-04-04 14:32:00}|116         |6339 |
+|{2024-04-04 14:27:00, 2024-04-04 14:32:00}|138         |6144 |
+|{2024-04-04 14:27:00, 2024-04-04 14:32:00}|97          |6050 |
+|{2024-04-04 14:27:00, 2024-04-04 14:32:00}|49          |5221 |
+|{2024-04-04 14:27:00, 2024-04-04 14:32:00}|151         |5153 |
++------------------------------------------+------------+-----+
+```
