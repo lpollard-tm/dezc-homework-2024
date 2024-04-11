@@ -10,6 +10,15 @@ sources:
       - name: green_tripdata
       - name: fhv_tripdata_2019
 
+    database: ny-taxi-rides-data
+    schema: usgs_data
+
+    tables:
+      - name: yellow_tripdata
+      - name: green_tripdata
+      - name: fhv_tripdata_2019
+      - name: usgs_data_raw_2024
+
 models:
   - name: stg_green_tripdata
     description: ""
